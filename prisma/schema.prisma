@@ -1,0 +1,49 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// TODO: define fields and relations
+model User {
+  id Int @default(autoincrement()) @id
+  email String @unique
+  firstName String
+  lastName String
+  social Json?
+  courses CourseEnrollment[]
+}
+
+// TODO: define fields and relations
+model Course {
+  id Int @default(autoincrement()) @id
+  name String
+  members []
+}
+model CourseEnrollment {
+  createdAt DateTime @default(now())
+  role UserRole
+  //Relation Fields
+  userId Int
+  user User @relation(fields:[])
+}
+enum UserRole {
+  STUDENT
+  TEACHER
+}
+// TODO: define fields and relations
+model Test {
+  id Int @default(autoincrement()) @id
+  updatedAt DateTime @updatedAt
+  name String //Name of the test
+  date DateTime //Date of the test
+  testResults TestResult[]
+}
+
+// TODO: define fields and relations
+model TestResult {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  result Int //Percentage precise to one decimal point represented as result
+  testId Int //relation scalar field
+  test Test @relation(fields:[testId],references: [id]) //relation field
+}
