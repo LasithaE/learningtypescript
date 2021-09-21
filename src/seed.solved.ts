@@ -30,20 +30,20 @@ async function main() {
 
   const course = await prisma.course.create({
     data: {
-      name: 'CRUD with Prisma',
+      name: 'CRUD with Prisma in the real world',
       tests: {
         create: [
           {
             date: weekFromNow,
-            name: 'First test',
+            name: 'First test'
           },
           {
             date: twoWeekFromNow,
-            name: 'Second test',
+            name: 'Second test'
           },
           {
             date: monthFromNow,
-            name: 'Final exam',
+            name: 'Final exam'
           },
         ],
       },
