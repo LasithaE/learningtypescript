@@ -2,6 +2,8 @@ import Hapi from '@hapi/hapi'
 import boom from '@hapi/boom'
 import { PrismaClient } from '.prisma/client'
 import Joi from '@hapi/joi'
+import { URLSearchParams } from 'url'
+import { parse } from 'path/posix'
 const usersPlugin: Hapi.Plugin<undefined>={
     name:'app/users',
     dependencies:['prisma'],
@@ -21,21 +23,59 @@ const usersPlugin: Hapi.Plugin<undefined>={
                     }
                 }
             },
+            
             {
                 method:'GET',
                 path:'/users/{userId}',
                 handler:getUserHandler,
                 options: {
                     validate: {
+                        
                         params:Joi.object({
                             userId: Joi.string().pattern(/^[0-9]+$/),
                         }),
 
                     }
                 }
-            }
+            },
+            {
+                method: 'PUT',
+                path:'/users/{userId}',
+                handler:UpdateUserHandler,
+                options:
+                {
+                    validate:{
+                        payload:userInputValidator,
+                        params:Joi.object({
+                            userId: Joi.string().pattern(/^[0-9]+$/),
+                        }),
+                        failAction:(request,h,err)=> {
+                            //show validation errors to user 
+                            throw err
+                        },
+                        
+                    },
+                },
+            },
+            {
+                method:'DELETE',
+                path:'/users/{userId}',
+                handler:DeleteUserHandler,
+                options:
+                {
+                    validate:{
+                        params:Joi.object({
+                            userId:Joi.string().pattern(/^[0-9']+$/),
+                        }),
+                        failAction:(request,h,err)=>{
+                            throw err
+                        },
+                    },
+                },
+            },
+
         ])
-    }
+    },
 }
 export default usersPlugin
 interface UserInput {
@@ -97,4 +137,37 @@ async function getUserHandler(request:Hapi.Request,h:Hapi.ResponseToolkit) {
 
     }
     return h.response(user).code(200)
+}
+async function UpdateUserHandler(request:Hapi.Request,h:Hapi.ResponseToolkit) {
+    const {prisma} = request.server.app
+    const userId = request.params.userId
+    const payload = request.payload as UserInput
+    try {
+        await prisma.user.update({
+            where:{
+                id:parseInt(userId,10),
+            },
+            data: payload, 
+        })
+        return h.response().code(204)
+    } catch (error) {
+        console.log(error)
+        return h.response().code(500)
+    }
+
+}
+async function DeleteUserHandler(request:Hapi.Request,h:Hapi.ResponseToolkit){
+    const {prisma} = request.server.app
+    const userId=request.params.userId as string
+    try {
+        await prisma.user.delete({
+            where:{
+                id:parseInt(userId,10),
+            },
+        })
+        return h.response().code(204)
+    } catch (err) {
+        console.log(err)
+        return h.response().code(500)
+    }
 }
