@@ -2,6 +2,7 @@ import Hapi from '@hapi/hapi'
 import { request } from 'http'
 import plugin from './plugins/status'
 import StatusPlugin  from './plugins/status'
+import emailPlugin from './plugins/email'
 import prismaPlugin  from './plugins/prisma'
 import userPlugin from './plugins/users'
 import usersPlugin from './plugins/users'
@@ -12,7 +13,7 @@ const server: Hapi.Server = Hapi.server({
 
 export async function createServer():Promise<Hapi.Server> {
   //defining the root before starting the server
-  await server.register([StatusPlugin,prismaPlugin,usersPlugin])
+  await server.register([StatusPlugin,prismaPlugin,usersPlugin,emailPlugin])
   await server.initialize()
   return server
 }
